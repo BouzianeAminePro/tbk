@@ -1,13 +1,12 @@
-import { Controller, Get } from '@nestjs/common';
-
-import { AppService } from './app.service';
+import { Controller, MessageEvent, Sse } from '@nestjs/common';
+import { Observable, interval, map } from 'rxjs';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor() {}
 
-  @Get()
-  getData() {
-    return this.appService.getData();
+  @Sse('sse')
+  sse(payload): Observable<MessageEvent> {
+    return interval(1000).pipe(map(() => ({ data: { payload } })));
   }
 }
