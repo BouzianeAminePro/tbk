@@ -5,6 +5,7 @@ import { catchError, map, of } from 'rxjs';
 import { AxiosResponse } from 'axios';
 
 import { createBinanceSignature } from './binance.helper';
+import { ServerEvents } from '../events/events';
 
 @Injectable()
 export class BinanceService {
@@ -71,7 +72,7 @@ export class BinanceService {
             (strategySignal === 'SELL' && parseFloat(balance.free) < quantity)
           ) {
             const insufficientText = `Insufficient balance for the order. Skipping this : ${symbol} - ${strategySignal} - ${quantity} - ${price}`;
-            this.eventEmitter.emit('test', { symbol, message: insufficientText });
+            this.eventEmitter.emit(ServerEvents.LogMessage, { symbol, message: insufficientText });
             console.log(insufficientText);
             return false;
           }

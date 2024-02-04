@@ -9,12 +9,11 @@ export class TradeService {
   constructor(
     private binanceService: BinanceService,
     private algoService: AlgoService
-  ) {}
+  ) { }
 
   trade(symbol: string) {
-    const quantity = 15;
+    const quantity = 15
 
-    // TODO make a room for symbol to have the logs of sell/buy or unsufficient balance
     return this.binanceService.fetchHistoricalData(symbol).pipe(
       exhaustMap((historicalData) => {
         const latestPrice =

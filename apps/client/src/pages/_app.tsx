@@ -1,14 +1,15 @@
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 
+import { ThemeProvider } from '@org/shared';
+
 import './styles.css';
-import { ThemeProvider } from '../../../../shared/src/components/ui/theme-provider';
 
 function CustomApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>Welcome to client!</title>
+        <title>TBK - Trading by kabla</title>
       </Head>
       <main className="app" suppressHydrationWarning={true}>
         <ThemeProvider
