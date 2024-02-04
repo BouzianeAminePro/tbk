@@ -1,6 +1,7 @@
 'use client';
 import dynamic from 'next/dynamic';
 import styles from './index.module.css';
+import { ModeToggle } from '../../../../shared/src/components/ui/mode-toggle';
 
 const Listener = dynamic(() => import('../components/Listener'), {
   ssr: false
@@ -16,6 +17,7 @@ export function Index() {
     <div className={styles.page}>
       <div className="wrapper">
         <div className="container">
+          <ModeToggle />
           <Listener symbol="ADAUSDT" />
           <Listener symbol="MATICUSDT" />
         </div>

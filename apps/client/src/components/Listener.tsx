@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { Socket, io } from 'socket.io-client';
+import { Button } from '@org/shared';
 
 export default function Listener({ symbol }: { symbol: string }) {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -48,7 +49,9 @@ export default function Listener({ symbol }: { symbol: string }) {
   return (
     <div>
       <p>State: {'' + isConnected}</p>
-      <button onClick={onListenTo}>Start trading on {symbol}</button>
+      <Button variant="default" onClick={onListenTo}>
+        Start trading on {symbol}
+      </Button>
       <h1>Logs of: {symbol}</h1>
       <div>
         {messages.map((message: string, index: number) => (
