@@ -9,7 +9,10 @@ import { ServerEvents } from '../events/events';
 
 @Injectable()
 export class BinanceService {
-  constructor(private httpService: HttpService, private eventEmitter: EventEmitter2) {}
+  constructor(
+    private httpService: HttpService,
+    private eventEmitter: EventEmitter2
+  ) {}
 
   fetchAccountInfo() {
     const timestamp = Date.now();
@@ -72,7 +75,10 @@ export class BinanceService {
             (strategySignal === 'SELL' && parseFloat(balance.free) < quantity)
           ) {
             const insufficientText = `Insufficient balance for the order. Skipping this : ${symbol} - ${strategySignal} - ${quantity} - ${price}`;
-            this.eventEmitter.emit(ServerEvents.LogMessage, { symbol, message: insufficientText });
+            this.eventEmitter.emit(ServerEvents.LogMessage, {
+              symbol,
+              message: insufficientText,
+            });
             console.log(insufficientText);
             return false;
           }

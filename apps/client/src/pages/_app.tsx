@@ -1,11 +1,22 @@
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-
-import { ThemeProvider } from '@org/shared';
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
 
 import './styles.css';
+import { ThemeProvider } from '@org/shared';
 
 function CustomApp({ Component, pageProps }: AppProps) {
+
+  const queryClient = new QueryClient({
+    queryCache: new QueryCache({}),
+    mutationCache: new MutationCache({}),
+  });
+
   return (
     <>
       <Head>
@@ -13,13 +24,15 @@ function CustomApp({ Component, pageProps }: AppProps) {
       </Head>
       <main className="app" suppressHydrationWarning={true}>
         <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-          <div className="bg-slate-200 h-screen w-full flex items-center justify-center">
-            <Component {...pageProps} />
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="h-screen w-full flex items-center justify-center">
+            <QueryClientProvider client={queryClient}>
+              <Component {...pageProps} />
+            </QueryClientProvider>
           </div>
         </ThemeProvider>
       </main>

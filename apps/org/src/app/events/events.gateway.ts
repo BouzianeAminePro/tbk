@@ -7,13 +7,13 @@ import {
 } from '@nestjs/websockets';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Server, Socket } from 'socket.io';
-import { EventType, ServerEvents, SocketEvents } from './events';
-// import { EventType, SocketEvents } from '@org/shared';
+import { ServerEvents } from './events';
+import { EventType, SocketEvents } from '@org/shared/types';
 
 @WebSocketGateway({
   cors: {
-    origin: '*'
-  }
+    origin: '*',
+  },
 })
 export class EventsGateway {
   @WebSocketServer()
@@ -26,18 +26,26 @@ export class EventsGateway {
   }
 
   @SubscribeMessage(SocketEvents.JoinRoom)
-  private onJoinRoom(@MessageBody('room') room: string, @ConnectedSocket() socket: Socket) {
+  private onJoinRoom(
+    @MessageBody('room') room: string,
+    @ConnectedSocket() socket: Socket
+  ) {
     socket.join(room);
   }
 
   @SubscribeMessage(SocketEvents.LeaveRoom)
-  private onLeaveRoom(@MessageBody('room') room: string, @ConnectedSocket() socket: Socket) {
+  private onLeaveRoom(
+    @MessageBody('room') room: string,
+    @ConnectedSocket() socket: Socket
+  ) {
     socket.leave(room);
   }
 
   // ------- Server Messages EventEmitter ---------
   @OnEvent(ServerEvents.LogMessage)
   private onServerLogMessage(payload: EventType) {
-    this.server.to(payload?.symbol).emit(SocketEvents.LogMessage, payload.message);
+    this.server
+      .to(payload?.symbol)
+      .emit(SocketEvents.LogMessage, payload.message);
   }
 }

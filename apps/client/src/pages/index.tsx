@@ -3,7 +3,6 @@
 import dynamic from 'next/dynamic';
 
 import { PlusIcon } from "@radix-ui/react-icons"
-
 import { Button, ModeToggle } from '@org/shared';
 
 const Listener = dynamic(() => import('../components/Listener'), {

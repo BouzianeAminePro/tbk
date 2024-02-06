@@ -15,8 +15,11 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@org/shared": ["shared/src/index.ts"],
-      "@org/shared/server": ["shared/src/server.ts"]
+      "@org/prisma-client": ["libs/prisma-client/src/index.ts"],
+      "@org/schema": ["libs/schema/src/index.ts"],
+      "@org/shared": ["libs/shared/src/index.ts"],
+      "@org/shared/types": ["libs/shared/src/types/"],
+      "@org/shared/server": ["libs/shared/src/server.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
