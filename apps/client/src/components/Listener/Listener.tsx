@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Socket, io } from 'socket.io-client';
 
@@ -22,44 +22,63 @@ import {
   TabsList,
   TabsTrigger,
 } from 'libs/shared/src';
-import { EmbeddedTV } from './Utils/EmbddedTV';
 
-export default function Listener({
-  symbol,
-  viewSymbol,
-}: {
-  symbol: string;
-  viewSymbol: string;
-}) {
+import EmbeddedTV from './EmbddedTV';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+export default function Listener({ tradeId }: { tradeId: number }) {
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [isConnected, setIsConnected] = useState<boolean>(false);
   const [messages, setMessages] = useState<string[]>([]);
 
-  const onDisconnect = useCallback(() => setIsConnected(false), []);
+  const queryKey = useMemo(() => `trade-${tradeId}`, [tradeId]);
 
-  const onListenTo = useCallback(
-    () =>
-      fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/trade/${symbol}`, {
-        method: 'POST',
-        body: JSON.stringify({
-          sellQuantity: 20,
-          buyQuantity: 15,
-          interval: 12000,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }).then(() => {
-        socket?.emit(SocketEvents.JoinRoom, { room: symbol });
-        setIsConnected(true);
-      }),
-    [symbol, socket, setIsConnected]
-  );
+  const { isPending, data } = useQuery({
+    queryKey: [queryKey],
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/trade/${tradeId}`).then(
+        (res) => res.json()
+      ),
+  });
+
+  const queryClient = useQueryClient();
+
+  const activateTrader = useMutation({
+    mutationFn: ({ active }: { active: boolean }) => {
+      return fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/trade/${tradeId}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            active,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      ).then(() => (active ? joinRoom() : leaveRoom()));
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [queryKey] }),
+  });
 
   const onLogMessage = useCallback(
     (message: string) => setMessages((prev) => [...(prev ?? []), message]),
     []
   );
+
+  const joinRoom = useCallback(
+    () => socket?.emit(SocketEvents.JoinRoom, { room: data?.symbol }),
+    [socket, data]
+  );
+
+  const leaveRoom = useCallback(
+    () => socket?.emit(SocketEvents.LeaveRoom),
+    [socket]
+  );
+
+  useEffect(() => {
+    if (!data?.active) return;
+    joinRoom();
+  }, [data?.active, joinRoom]);
 
   useEffect(
     () =>
@@ -72,27 +91,28 @@ export default function Listener({
   );
 
   useEffect(() => {
-    socket?.on('disconnect', onDisconnect);
+    socket?.on('disconnect', leaveRoom);
     socket?.on(SocketEvents.LogMessage, onLogMessage);
 
     return () => {
-      socket?.off('disconnect', onDisconnect);
+      socket?.off('disconnect', leaveRoom);
       socket?.off(SocketEvents.LogMessage, onLogMessage);
-      socket?.emit(SocketEvents.LeaveRoom, onDisconnect);
-      setIsConnected(false);
+      socket?.emit(SocketEvents.LeaveRoom);
     };
-  }, [onDisconnect, onLogMessage, socket, setIsConnected]);
+  }, [onLogMessage, socket]);
+
+  if (isPending) return null;
 
   return (
     <Card className="w-[500px] h-[350px]">
       <CardHeader>
         <CardTitle className="flex gap-x-2 items-center">
-          {isConnected ? (
+          {data.active ? (
             <span className="flex h-2 w-2 rounded-full bg-emerald-700" />
           ) : (
             <span className="flex h-2 w-2 rounded-full bg-red-800" />
           )}{' '}
-          {symbol}
+          {data?.symbol}
           <div className="flex gap-x-3 ml-auto">
             {/* TODO this sheet its for updating the existing trade on database */}
             <Sheet>
@@ -122,21 +142,41 @@ export default function Listener({
                 </SheetHeader>
               </SheetContent>
             </Sheet>
-            <div className=" cursor-pointer" onClick={onListenTo}>
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 15 15"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z"
-                  fill="currentColor"
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                ></path>
-              </svg>
+            <div
+              className=" cursor-pointer"
+              onClick={() => activateTrader.mutate({ active: !data.active })}
+            >
+              {data.active ? (
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 15 15"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z"
+                    fill="currentColor"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
+              ) : (
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 15 15"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3.24182 2.32181C3.3919 2.23132 3.5784 2.22601 3.73338 2.30781L12.7334 7.05781C12.8974 7.14436 13 7.31457 13 7.5C13 7.68543 12.8974 7.85564 12.7334 7.94219L3.73338 12.6922C3.5784 12.774 3.3919 12.7687 3.24182 12.6782C3.09175 12.5877 3 12.4252 3 12.25V2.75C3 2.57476 3.09175 2.4123 3.24182 2.32181ZM4 3.57925V11.4207L11.4288 7.5L4 3.57925Z"
+                    fill="currentColor"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
+              )}
             </div>
           </div>
         </CardTitle>
@@ -158,7 +198,7 @@ export default function Listener({
           </TabsContent>
           <TabsContent value="chart">
             <div className="h-[200px]">
-              <EmbeddedTV viewSymbol={viewSymbol} />
+              <EmbeddedTV viewSymbol={data?.viewSymbol} />
             </div>
           </TabsContent>
         </Tabs>

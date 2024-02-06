@@ -1,15 +1,19 @@
-"use client";
+'use client';
 
 import { useTheme } from 'next-themes';
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 
-export function EmbeddedTV({ viewSymbol }: { viewSymbol: string }) {
-
+const EmbeddedTV = memo(function EmbeddedTV({
+  viewSymbol,
+}: {
+  viewSymbol: string;
+}) {
   const container = useRef<HTMLDivElement>(null);
 
   const { theme } = useTheme();
 
   useEffect(() => {
+    console.log(container);
     const script = document.createElement('script');
     script.src =
       'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
@@ -43,4 +47,6 @@ export function EmbeddedTV({ viewSymbol }: { viewSymbol: string }) {
       ></div>
     </div>
   );
-}
+});
+
+export default EmbeddedTV;

@@ -2,14 +2,25 @@
 
 import dynamic from 'next/dynamic';
 
-import { PlusIcon } from "@radix-ui/react-icons"
-import { Button, ModeToggle } from '@org/shared';
+import { PlusIcon } from '@radix-ui/react-icons';
+import { Button, ModeToggle, Trade } from '@org/shared';
+import { useQuery } from '@tanstack/react-query';
 
-const Listener = dynamic(() => import('../components/Listener'), {
-  ssr: false
+const Listener = dynamic(() => import('../components/Listener/Listener'), {
+  ssr: false,
 });
 
 export function Index() {
+  const { isPending, data: trades } = useQuery({
+    queryKey: ['trades'],
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/trade`).then((res) =>
+        res.json()
+      ),
+  });
+
+  if (isPending) return null;
+
   return (
     <div className="flex flex-col gap-y-5">
       <div className="flex gap-y-3 gap-x-2">
@@ -20,10 +31,11 @@ export function Index() {
         </Button>
       </div>
       <div className="flex gap-4">
-        <Listener symbol="ADAUSDT" viewSymbol="ADA/USDT" />
-        <Listener symbol="MATICUSDT" viewSymbol="MATIC/USDT" />
+        {trades?.map((trade: Trade) => (
+          <Listener key={trade?.id} tradeId={trade?.id} />
+        ))}
       </div>
-    </div >
+    </div>
   );
 }
 

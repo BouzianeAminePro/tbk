@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   ValidationPipe,
 } from '@nestjs/common';
@@ -20,9 +21,11 @@ export class TradeController {
     @Param('symbol') symbol: string,
     @Body(new ValidationPipe()) body: Trade
   ) {
-  
     from(this.tradeService.createTrade(symbol, body))
-      .pipe(mergeMap((trade: Trade) => this.tradeService.startTrading(trade)))
+      .pipe(
+        // TODO so how i can add this to the list of trades
+        mergeMap((trade: Trade) => this.tradeService.startTrading(trade))
+      )
       .subscribe();
 
     return of({
@@ -33,6 +36,20 @@ export class TradeController {
   @Get()
   getTrades() {
     return from(this.tradeService.getTrades()).pipe(
+      catchError((error) => of(error))
+    );
+  }
+
+  @Patch(':id')
+  updateTrade(@Param('id') id: number, @Body() body: Partial<Trade>) {
+    return from(this.tradeService.updateTrade(id, body)).pipe(
+      catchError((error) => of(error))
+    );
+  }
+
+  @Get(':id')
+  getTrade(@Param('id') id: number) {
+    return from(this.tradeService.getTrade(id)).pipe(
       catchError((error) => of(error))
     );
   }

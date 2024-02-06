@@ -29,9 +29,10 @@ model Trade {
   sellQuantity Int
   buyQuantity  Int
   interval     Int
-  buyPrice     Int? @default(0)
+  viewSymbol   String?
+  buyPrice     Int?    @default(0)
   message      String?
-  sellPrice    Int? @default(0)
+  sellPrice    Int?    @default(0)
   userId       Int?
   user         User?   @relation(fields: [userId], references: [id])
 }

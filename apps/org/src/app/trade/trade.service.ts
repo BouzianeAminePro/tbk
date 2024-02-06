@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import {
   catchError,
   exhaustMap,
@@ -18,6 +18,8 @@ import { AlgoService } from '../algo/algo.service';
 
 @Injectable()
 export class TradeService {
+  trades = {};
+
   constructor(
     private binanceService: BinanceService,
     private algoService: AlgoService,
@@ -48,10 +50,31 @@ export class TradeService {
     return this.prismaService.trade.findMany();
   }
 
+  async updateTrade(id: number, body: Partial<Trade>) {
+    const trade = await this.getTrade(id);
+
+    const result = await this.prismaService.trade.update({
+      where: { id },
+      data: {
+        ...trade,
+        ...body,
+      },
+    });
+
+    if (result?.active) {
+      // TODO use user.id then trade.id
+      this.trades[trade.id] = this.startTrading(result).subscribe();
+    } else {
+      this.endTrader(result?.id);
+    }
+
+    return result;
+  }
+
   startTrading(trade: Trade) {
     if (!trade) return of(null);
 
-    return interval(trade.interval ?? 3000).pipe(
+    const trader = interval(trade.interval ?? 3000).pipe(
       mergeMap(() =>
         this.binanceService.fetchHistoricalData(trade.symbol).pipe(
           exhaustMap((historicalData) => {
@@ -96,5 +119,23 @@ export class TradeService {
         )
       )
     );
+
+    return trader;
+  }
+
+  endTrader(id: number) {
+    this.trades[id].unsubscribe();
+  }
+
+  async getTrade(id: number) {
+    const trade = await this.prismaService.trade.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!trade) throw new HttpException('No trade with this id was found', 404);
+
+    return trade;
   }
 }

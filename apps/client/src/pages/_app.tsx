@@ -11,10 +11,14 @@ import './styles.css';
 import { ThemeProvider } from '@org/shared';
 
 function CustomApp({ Component, pageProps }: AppProps) {
-
   const queryClient = new QueryClient({
-    queryCache: new QueryCache({}),
-    mutationCache: new MutationCache({}),
+    defaultOptions: {
+      queries: {
+        gcTime: 60000,
+      },
+    },
+    queryCache: new QueryCache(),
+    mutationCache: new MutationCache(),
   });
 
   return (

@@ -18,6 +18,7 @@
       "@org/prisma-client": ["libs/prisma-client/src/index.ts"],
       "@org/schema": ["libs/schema/src/index.ts"],
       "@org/shared": ["libs/shared/src/index.ts"],
+      "@org/shared/components": ["libs/shared/src/components/ui"],
       "@org/shared/types": ["libs/shared/src/types/"],
       "@org/shared/server": ["libs/shared/src/server.ts"]
     }
