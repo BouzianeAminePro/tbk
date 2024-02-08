@@ -10,7 +10,9 @@
     "prisma": "npx nx run schema:prisma",
     "prisma:format": "npx nx run schema:prisma format",
     "prisma:generate": "npx nx run schema:generate-types",
-    "build:prod": "npx nx run client:build; npx nx run org:build"
+    "build:prod": "npx nx run client:build; npx nx run org:build",
+    "build:libs": "npx nx run shared:build",
+    "build": "prisma generate && prisma migrate && prisma db push && npm run build:prod"
   },
   "private": true,
   "dependencies": {
