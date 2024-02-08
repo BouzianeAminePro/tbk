@@ -7,8 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Server, Socket } from 'socket.io';
-import { ServerEvents } from './events';
-import { EventType, SocketEvents } from '@org/shared/types';
+import { EventType, ServerEvents, SocketEvents } from './events';
 
 @WebSocketGateway({
   cors: {

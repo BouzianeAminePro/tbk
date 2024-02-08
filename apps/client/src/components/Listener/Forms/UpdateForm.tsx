@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 import { useForm } from 'react-hook-form';
 
 import {
@@ -12,12 +14,11 @@ import {
   Input,
   SheetClose,
   Switch,
-  Trade,
   useToast,
+  Trade
 } from '@org/shared';
 
 import useTrade from '../../../hooks/useTrade';
-import { useCallback } from 'react';
 
 export default function UpdateForm({ tradeId }: { tradeId: number }) {
   const { updateTrader, trade } = useTrade(tradeId);
