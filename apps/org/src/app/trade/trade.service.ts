@@ -9,10 +9,9 @@ import {
   of,
 } from 'rxjs';
 
-import { PrismaService } from '@org/prisma-client';
-
 import { BinanceService } from '../binance/binance.service';
 import { AlgoService } from '../algo/algo.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TradeService {

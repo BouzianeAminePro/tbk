@@ -2,10 +2,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      // "@org/shared": ["libs/shared/src/index.ts"],
       "@org/shared/*": ["libs/shared/src/*"],
       "@org/schema/*": ["libs/schema/src/*"],
-      "@org/prisma-client": ["libs/prisma-client/src/*"],
     }
   }
 }
