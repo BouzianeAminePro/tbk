@@ -1,14 +1,14 @@
-'use client';
-
 import dynamic from 'next/dynamic';
 
-import { PlusIcon } from '@radix-ui/react-icons';
-import { Button, ModeToggle, Trade } from '@org/shared';
 import { useQuery } from '@tanstack/react-query';
 
-const Listener = dynamic(() => import('../components/Listener/Listener'), {
-  ssr: false,
-});
+import { ModeToggle, Trade } from '@org/shared';
+
+import Listener from '../components/Listener/Listener';
+const AddSheet = dynamic(
+  () => import('../components/Listener/Sheets/AddSheet'),
+  { ssr: false }
+);
 
 export function Index() {
   const { isPending, data: trades } = useQuery({
@@ -25,10 +25,7 @@ export function Index() {
     <div className="flex flex-col gap-y-5">
       <div className="flex gap-y-3 gap-x-2">
         <ModeToggle />
-        {/* TODO to add new SYMBOL (trade) on database */}
-        <Button variant="outline" size="icon">
-          <PlusIcon />
-        </Button>
+        <AddSheet />
       </div>
       <div className="flex gap-4">
         {trades?.map((trade: Trade) => (

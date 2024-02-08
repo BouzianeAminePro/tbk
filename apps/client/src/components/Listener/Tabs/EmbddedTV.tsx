@@ -13,7 +13,6 @@ const EmbeddedTV = memo(function EmbeddedTV({
   const { theme } = useTheme();
 
   useEffect(() => {
-    console.log(container);
     const script = document.createElement('script');
     script.src =
       'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';

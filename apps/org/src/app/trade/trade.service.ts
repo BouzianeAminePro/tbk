@@ -26,28 +26,35 @@ export class TradeService {
     private prismaService: PrismaService
   ) {}
 
-  async createTrade(symbol: string, trade: Trade) {
+  async createTrade(trade: Trade) {
     let find = await this.prismaService.trade.findFirst({
       where: {
-        symbol,
+        symbol: trade.symbol,
       },
     });
 
-    if (!find) {
-      find = await this.prismaService.trade.create({
-        data: {
-          active: true,
-          symbol,
-          ...trade,
-        },
-      });
+    if (find) {
+      return new HttpException(
+        'Trader with this symbol is already running',
+        409
+      );
     }
+
+    find = await this.prismaService.trade.create({
+      data: trade,
+    });
+
+    this.startOrEndTrader(find);
 
     return find;
   }
 
-  getTrades() {
-    return this.prismaService.trade.findMany();
+  async getTrades() {
+    return await this.prismaService.trade.findMany({
+      orderBy: {
+        id: 'desc',
+      },
+    });
   }
 
   async updateTrade(id: number, body: Partial<Trade>) {
@@ -62,8 +69,7 @@ export class TradeService {
     });
 
     if (result?.active) {
-      // TODO use user.id then trade.id
-      this.trades[trade.id] = this.startTrading(result).subscribe();
+      this.startOrEndTrader(result);
     } else {
       this.endTrader(result?.id);
     }
@@ -71,7 +77,35 @@ export class TradeService {
     return result;
   }
 
-  startTrading(trade: Trade) {
+  async getTrade(id: number) {
+    const trade = await this.prismaService.trade.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!trade) throw new HttpException('No trade with this id was found', 404);
+
+    return trade;
+  }
+
+  async deleteTrade(id: number) {
+    const trade = await this.prismaService.trade.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!trade) throw new HttpException('No trade with this id was found', 404);
+
+    this.endTrader(id);
+
+    return await this.prismaService.trade.delete({
+      where: { id },
+    });
+  }
+
+  private launchTrade(trade: Trade) {
     if (!trade) return of(null);
 
     const trader = interval(trade.interval ?? 3000).pipe(
@@ -123,19 +157,26 @@ export class TradeService {
     return trader;
   }
 
-  endTrader(id: number) {
-    this.trades[id].unsubscribe();
+  private endTrader(id: number) {
+    if (id in this.trades) {
+      this.trades[id].unsubscribe();
+      delete this.trades[id];
+    }
   }
 
-  async getTrade(id: number) {
-    const trade = await this.prismaService.trade.findUnique({
-      where: {
-        id,
-      },
-    });
+  private startTrader(trade: Trade) {
+    const trader = this.trades[trade.id];
+    if (trader) return;
+    // TODO use user.id then trade.id
+    // TODO use clerk
+    this.trades[trade.id] = this.launchTrade(trade).subscribe();
+  }
 
-    if (!trade) throw new HttpException('No trade with this id was found', 404);
+  private startOrEndTrader(trade: Trade) {
+    if (!trade?.active) {
+      return this.endTrader(trade.id);
+    }
 
-    return trade;
+    return this.startTrader(trade);
   }
 }

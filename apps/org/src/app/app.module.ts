@@ -13,25 +13,6 @@ import { EventsModule } from './events/events.module';
   imports: [
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot(),
-    // TypeOrmModule.forRoot({
-    //   type: 'postgres',
-    //   host: String(process.env.POSTGRES_HOST),
-    //   port: Number(process.env.POSTGRES_PORT),
-    //   username: String(process.env.POSTGRES_USER),
-    //   password: String(process.env.POSTGRES_PASSWORD),
-    //   database: String(process.env.POSTGRES_DB),
-    //   entities: ['**/*.entity{.ts}'],
-
-    //   migrationsTableName: 'migration',
-
-    //   // migrations: ['src/migration/*.ts'],
-
-    //   // cli: {
-    //   // migrationsDir: 'src/migration',
-    //   // },
-
-    //   ssl: Boolean(process.env.SSL)
-    // }),
     TradeModule,
     BinanceModule,
     AlgoModule,

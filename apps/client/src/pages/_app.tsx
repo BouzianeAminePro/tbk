@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-query';
 
 import './styles.css';
-import { ThemeProvider } from '@org/shared';
+import { ThemeProvider, Toaster } from '@org/shared';
 
 function CustomApp({ Component, pageProps }: AppProps) {
   const queryClient = new QueryClient({
@@ -36,6 +36,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
           <div className="h-screen w-full flex items-center justify-center">
             <QueryClientProvider client={queryClient}>
               <Component {...pageProps} />
+              <Toaster />
             </QueryClientProvider>
           </div>
         </ThemeProvider>
