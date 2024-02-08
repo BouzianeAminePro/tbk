@@ -9,9 +9,7 @@ import {
   of,
 } from 'rxjs';
 
-import { Trade } from '@prisma/client';
-
-import { PrismaService } from '@org/prisma-client';
+import { PrismaService, Trade } from '@org/prisma-client';
 
 import { BinanceService } from '../binance/binance.service';
 import { AlgoService } from '../algo/algo.service';

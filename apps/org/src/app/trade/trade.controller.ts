@@ -10,8 +10,9 @@ import {
 } from '@nestjs/common';
 import { catchError, from, throwError } from 'rxjs';
 
+import { Trade } from '@org/prisma-client';
+
 import { TradeService } from './trade.service';
-import { Trade } from '@prisma/client';
 
 @Controller('/trade')
 export class TradeController {
