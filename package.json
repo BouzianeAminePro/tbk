@@ -9,7 +9,8 @@
     "prisma:migrate": "npx nx run schema:migrate",
     "prisma": "npx nx run schema:prisma",
     "prisma:format": "npx nx run schema:prisma format",
-    "prisma:generate": "npx nx run schema:generate-types"
+    "prisma:generate": "npx nx run schema:generate-types",
+    "build:prod": "npx nx run client:build; npx nx run org:build"
   },
   "private": true,
   "dependencies": {
