@@ -1,9 +1,7 @@
 import { createHmac } from 'crypto';
-
-export const BINANCE_API_SECRET =
-  'Rj4Y0vOwvqGAkNgt5eS1IMXIgvUOPKGtYytbIQj1AR7jxUoq69GSXZf2HPFDRxDR';
+import { env } from '../../environment/environment';
 
 export function createBinanceSignature(queryString) {
-  const hmac = createHmac('sha256', BINANCE_API_SECRET);
+  const hmac = createHmac('sha256', env.binance.apiSecret);
   return hmac.update(queryString).digest('hex');
 }

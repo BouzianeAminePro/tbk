@@ -8,11 +8,16 @@ import { TradeModule } from './trade/trade.module';
 import { BinanceModule } from './binance/binance.module';
 import { AlgoModule } from './algo/algo.module';
 import { EventsModule } from './events/events.module';
+import { getEnvConfig } from '../environment/env-config';
 
 @Module({
   imports: [
     EventEmitterModule.forRoot(),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      load: [getEnvConfig],
+      isGlobal: true,
+      cache: true,
+    }),
     TradeModule,
     BinanceModule,
     AlgoModule,
