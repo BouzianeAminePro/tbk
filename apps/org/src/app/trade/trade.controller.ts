@@ -10,8 +10,6 @@ import {
 } from '@nestjs/common';
 import { catchError, from, throwError } from 'rxjs';
 
-import { Trade } from '@org/prisma-client';
-
 import { TradeService } from './trade.service';
 
 @Controller('/trade')
@@ -19,7 +17,7 @@ export class TradeController {
   constructor(private tradeService: TradeService) {}
 
   @Post()
-  trade(@Body(new ValidationPipe()) body: Trade) {
+  trade(@Body(new ValidationPipe()) body) {
     return from(this.tradeService.createTrade(body)).pipe(
       catchError((error) => throwError(() => error))
     );
@@ -33,7 +31,7 @@ export class TradeController {
   }
 
   @Patch(':id')
-  updateTrade(@Param('id') id: number, @Body() body: Partial<Trade>) {
+  updateTrade(@Param('id') id: number, @Body() body) {
     return from(this.tradeService.updateTrade(id, body)).pipe(
       catchError((error) => throwError(() => error))
     );

@@ -9,7 +9,7 @@ import {
   of,
 } from 'rxjs';
 
-import { PrismaService, Trade } from '@org/prisma-client';
+import { PrismaService } from '@org/prisma-client';
 
 import { BinanceService } from '../binance/binance.service';
 import { AlgoService } from '../algo/algo.service';
@@ -24,7 +24,7 @@ export class TradeService {
     private prismaService: PrismaService
   ) {}
 
-  async createTrade(trade: Trade) {
+  async createTrade(trade) {
     let find = await this.prismaService.trade.findFirst({
       where: {
         symbol: trade.symbol,
@@ -55,7 +55,7 @@ export class TradeService {
     });
   }
 
-  async updateTrade(id: number, body: Partial<Trade>) {
+  async updateTrade(id: number, body) {
     const trade = await this.getTrade(id);
 
     const result = await this.prismaService.trade.update({
@@ -103,7 +103,7 @@ export class TradeService {
     });
   }
 
-  private launchTrade(trade: Trade) {
+  private launchTrade(trade) {
     if (!trade) return of(null);
 
     const trader = interval(trade.interval ?? 3000).pipe(
@@ -162,7 +162,7 @@ export class TradeService {
     }
   }
 
-  private startTrader(trade: Trade) {
+  private startTrader(trade) {
     const trader = this.trades[trade.id];
     if (trader) return;
     // TODO use user.id then trade.id
@@ -170,7 +170,7 @@ export class TradeService {
     this.trades[trade.id] = this.launchTrade(trade).subscribe();
   }
 
-  private startOrEndTrader(trade: Trade) {
+  private startOrEndTrader(trade) {
     if (!trade?.active) {
       return this.endTrader(trade.id);
     }
